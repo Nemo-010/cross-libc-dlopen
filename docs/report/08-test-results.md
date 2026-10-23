@@ -31,6 +31,11 @@ total minus the four skips below, and CI re-runs both on every push.
 `experiments/run.ps1` drives the same three stage scripts for a machine with
 PowerShell and no POSIX shell.
 
+⚠ **E104, E105 and E106 are not in those totals yet.** They are the cases for
+the NixOS host directories (section 9.22), they need root to create
+`/run/opengl-driver/lib`, and the machine that added them had no root. The
+next container run measures them and moves the totals to 69/69 and 65/65.
+
 ⚠ **The two totals differ by exactly the four cases aarch64 SKIPS**, each
 naming the capability it lacks rather than the difference being unexplained:
 
@@ -76,6 +81,9 @@ objects small enough that the mechanism is the only thing being measured:
 | E73 | the distinct-name call count an application can be measured by |
 | E75 / E75b | the shim finds a target in a directory only `/etc/ld.so.conf` names, and does not when the conf file is removed |
 | E103 | a directory the host names first holds a wrong-class library: the shim skips it and finds the one that loads, instead of reporting no target |
+| E104 | the switched runtime's `--library-path` carries `/run/opengl-driver/lib` and `/run/current-system/sw/lib`, which NixOS publishes and no `ld.so.conf` names |
+| E105 | the shim finds a target under `/run/opengl-driver/lib`, the directory a NixOS host keeps its GPU userspace in |
+| E106 | `LIBVA_DRIVERS_PATH` gets `/run/opengl-driver/lib/dri`, the directory a NixOS host keeps its VA drivers in |
 | E75c / E75d / E75e / E75f | a shim with no target serves each name from the provider behind it in the lookup order; the no-preload control; the log line pinning the fallthrough; the same in EAGER mode |
 | E76 / E76b | the aarch64 trampolines and resolver RUN, under qemu-user, forwarding and absent paths both |
 
