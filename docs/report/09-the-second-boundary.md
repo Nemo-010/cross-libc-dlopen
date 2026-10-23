@@ -362,7 +362,7 @@ Totals with this section in: **40/40 on the musl host** with five named skips,
 and ubuntu:16.04 with nineteen named skips, **7/7** on the gtk4 stage, and
 **53/53** in the container suite on x86-64, and **50/50** on aarch64 with the
 three skips named in section 8, at the measurement this section records; the
-totals for the tree as it ships are **66/66** and **62/62** in section 8.
+totals for the tree as it ships are **69/69** and **65/65** in section 8.
 
 ### 9.8 What the shim does not do, stated as a number
 
@@ -1555,15 +1555,20 @@ to the library path after the `/etc/ld.so.conf` entries, and both join the
 shim's fixed host list. Every entry is access-guarded, so a host without them
 pays one failed probe each and nothing else.
 
-E104, E105 and E106 are the cases. They need root to create
-`/run/opengl-driver/lib`, which the machine that added them could not do, so
-they are not in the 66/62 totals in section 8 until the container suite runs
-them. The mechanism was measured on that machine with the prefix substituted
-for a writable one: the assembled library path gains both directories after the
-`/etc/ld.so.conf` ones, the shim reports `target
-.../opengl-driver/lib/libtgt.so`, and the fake libva answers `DRIVER=NIX` from a
-driver that exists only in the substituted directory. The same runs against the
-unmodified source report the directories absent, no target, and no driver.
+E104, E105 and E106 are the cases, one per list, and the container suite runs
+all three on both architectures and reports MATCH for each, with
+`DRIVER=NIX env=[/run/opengl-driver/lib/dri]` as E106's line. Section 8 owns the
+totals. They create `/run/opengl-driver/lib`, so where `/run` is not writable
+each SKIPS by name instead of running.
+
+The same three mechanisms were also measured before CI ran them, on a machine
+with no root, with the prefix substituted for a writable one. There the
+assembled library path gains both directories after the `/etc/ld.so.conf`
+entries, the shim reports `target .../opengl-driver/lib/libtgt.so`, and the fake
+libva answers `DRIVER=NIX` from a driver that exists only in the substituted
+directory. The same runs against the unmodified source report the directories
+absent, no target, and no driver, which is what makes each of the three an A/B
+rather than a check that a string appeared.
 
 ---
 
